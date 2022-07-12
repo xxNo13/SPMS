@@ -4,29 +4,28 @@
   
   @forelse ($approvals as $approval)
     @if (Auth::user()->id == $approval->user_id)
-      @if (isset($approval->headoffice_status) && $approval->headoffice_status == 'pending')
+      @if ((isset($approval->headoffice_status) && $approval->headoffice_status == 'pending') || (isset($approval->hdu_status) && $approval->hdu_status == 'pending'))
         @php
           $submitted = false;
+          $approved = false;
         @endphp
-        @break
-      @elseif (isset($approval->hdu_status) && $approval->hdu_status == 'pending')
-        @php
-          $submitted = false;
-        @endphp
-        @break
-      @elseif (isset($approval->headoffice_status) && $approval->headoffice_status == 'approved' && isset($approval->hdu_status) && $approval->hdu_status == 'approved')
+      @elseif ((isset($approval->headoffice_status) && $approval->headoffice_status == 'approved') && (isset($approval->hdu_status) && $approval->hdu_status == 'approved'))
         @php
           $submitted = true;
           $approved = true;
         @endphp
         @break
       @endif
-      @php
-        $submitted = true;
-        $approved = false;
-      @endphp
-      @break
-    @elseif (Auth::user()->id != $approval->user_id)
+      
+      @if (empty($approval->headoffice_status) || empty($approval->hdu_status))
+        @php
+          $submitted = true;
+          $approved = false;
+        @endphp
+        @break
+      @endif
+      
+    @elseif (Auth::user()->id != $approval->user_id && $loop->last)
       @php
         $submitted = false;
         $approved = false;
